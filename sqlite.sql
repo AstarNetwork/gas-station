@@ -1,0 +1,1 @@
+CREATE TABLE astar_gas_predictor([id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,[gas] TEXT, [blockNumber] TEXT);

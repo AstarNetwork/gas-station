@@ -3,7 +3,6 @@ import { db }  from './db.js';
 
 const RPC_NODE_ENDPOINT = 'wss://rpc.astar.network';
 
-// db.exec('CREATE TABLE astar_gas_predictor([id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,[gas] TEXT, [blockNumber] TEXT)')
 export async function main() {
  
   // Other public RPC endpoints listed above
