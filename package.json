@@ -1,0 +1,31 @@
+{
+  "name": "astar-gas-station",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "lint": "eslint --ext .js ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AstarNetwork/gas-station.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AstarNetwork/gas-station/issues"
+  },
+  "homepage": "https://github.com/AstarNetwork/gas-station#readme",
+  "dependencies": {
+    "@polkadot/api": "^6.3.2-7",
+    "express": "^4.18.1",
+    "node-fetch": "^3.2.4",
+    "sqlite3": "^5.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0"
+  }
+}
