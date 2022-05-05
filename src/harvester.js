@@ -1,6 +1,6 @@
 import web3 from './web3.js';
 
-const historicalBlocks = 20;
+const historicalBlocks = 200;
 
 export const estimate = {
     shibuya: {},
