@@ -51,6 +51,14 @@ export function harvest(network) {
                 average: average + baseFeePerGas,
                 fast: fast + baseFeePerGas,
                 timestamp: Date.now(),
+                eip1559: {
+                    priorityFeePerGas: {
+                        slow: slow,
+                        average: average,
+                        fast: fast,
+                    },
+                    baseFeePerGas: baseFeePerGas,
+                }
             };
             console.log("estimate:", network, estimate[network]);
         });
