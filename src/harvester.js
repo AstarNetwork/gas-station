@@ -1,56 +1,58 @@
-import { WsProvider, ApiPromise } from '@polkadot/api';
-import { db }  from './db.js';
+import web3 from './web3.js';
 
-const RPC_NODE_ENDPOINT = 'wss://rpc.astar.network';
+const historicalBlocks = 20;
 
-export async function main() {
- 
-  // Other public RPC endpoints listed above
-    const wsProvider = new WsProvider(RPC_NODE_ENDPOINT);
+export const estimate = {
+    shibuya: {},
+    shiden: {},
+    astar: {},
+};
 
-    const api = await ApiPromise.create({
-        provider: wsProvider
-    });
+function avg(arr) {
+    const sum = arr.reduce((a, v) => a + v);
+    return Math.round(sum/arr.length);
+}
 
-    await api.isReady;
+function formatFeeHistory(result) {
 
-    const [chain, nodeName, nodeVersion] = await Promise.all([
-        api.rpc.system.chain(),
-        api.rpc.system.name(),
-        api.rpc.system.version()
-    ]);
-    console.log(`Connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+    let blockNum = Number(result.oldestBlock);
+    let index = 0;
+    const blocks = [];
 
-    api.rpc.chain.subscribeNewHeads(async (header) => {
-        console.log(`Chain is at #${header.number}`);
-        const signedBlock = await api.rpc.chain.getBlock(header.hash);
+    while (blockNum < Number(result.oldestBlock) + historicalBlocks) {
+      blocks.push({
+        number: blockNum,
+        baseFeePerGas: Number(result.baseFeePerGas[index]),
+        gasUsedRatio: Number(result.gasUsedRatio[index]),
+        priorityFeePerGas: result.reward[index].map(x => Number(x)),
+      });
+      blockNum += 1;
+      index += 1;
+    }
 
-        // the information for each of the contained extrinsics
-        signedBlock.block.extrinsics.forEach((ex, index) => {
-            // the extrinsics are decoded by the API, human-like view
-            console.log(index, ex.toHuman());
+    return blocks;
+}
+
+export function harvest(network) {
+    if (!web3[network]) {
+        return console.error(`No web3 instance for ${network}`);
+    }
+    web3[network].eth.getFeeHistory(historicalBlocks, "latest", [10, 50, 90]).then((feeHistory) => {
+        const blocks = formatFeeHistory(feeHistory);
         
-            const { method: { args, method, section } } = ex;
+        const slow    = avg(blocks.map(b => b.priorityFeePerGas[0]));
+        const average = avg(blocks.map(b => b.priorityFeePerGas[1]));
+        const fast    = avg(blocks.map(b => b.priorityFeePerGas[2]));
         
-            // explicit display of name, args & documentation
-            console.log(`${section}.${method}`);
-            const params = args.map((a) => a.toString()).join(', ');
-            try {
-                const paramsJson = JSON.parse(params);
-                const gas = paramsJson.legacy.gasPrice;
-                if (gas != null) {
-                    db.run('INSERT INTO astar_gas_predictor(gas, blockNumber) VALUES(?, ?)', [Number(gas), header.number.toString()], (err) => {
-                        if(err) {
-                            return console.log(err.message); 
-                        }
-                        console.log('Row was added to the table astar_gas_predictor:', gas, ' ' ,header.number.toString());
-                    })
-                }
-                
-            } catch (error) {
-                console.log(error);
-            }
+        web3[network].eth.getBlock("latest").then((block) => {
+            const baseFeePerGas = Number(block.baseFeePerGas) || 1000000000;
+            estimate[network] = {
+                slow: slow + baseFeePerGas,
+                average: average + baseFeePerGas,
+                fast: fast + baseFeePerGas,
+                timestamp: Date.now(),
+            };
+            console.log("estimate:", network, estimate[network]);
         });
-
     });
 }

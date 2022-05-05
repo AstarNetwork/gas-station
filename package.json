@@ -2,10 +2,10 @@
   "name": "astar-gas-station",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "scr/main.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node src/main.js",
     "lint": "eslint --ext .js ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,7 +23,8 @@
     "@polkadot/api": "^6.3.2-7",
     "express": "^4.18.1",
     "node-fetch": "^3.2.4",
-    "sqlite3": "^5.0.6"
+    "sqlite3": "^5.0.6",
+    "web3": "^1.7.3"
   },
   "devDependencies": {
     "eslint": "^8.14.0"
