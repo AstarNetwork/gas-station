@@ -1,10 +1,14 @@
-import express from 'express'
+import express from 'express';
+import cors from 'cors';
 
 import { harvest, estimate } from './harvester.js';
 
 const BLOCK_INTERVAL = 12000;
 
 const app = express()
+
+app.use(cors())
+
 const port = process.env.PORT || 3000;
 
 app.get('/api/:network/gasNow', (req, res, next) => {

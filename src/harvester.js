@@ -19,7 +19,7 @@ function formatFeeHistory(result) {
     let index = 0;
     const blocks = [];
 
-    while (blockNum < Number(result.oldestBlock) + historicalBlocks) {
+    while ((blockNum < Number(result.oldestBlock) + historicalBlocks) && result.reward[index]) {
       blocks.push({
         number: blockNum,
         baseFeePerGas: Number(result.baseFeePerGas[index]),
@@ -43,9 +43,9 @@ export function harvest(network) {
         const slow    = avg(blocks.map(b => b.priorityFeePerGas[0]));
         const average = avg(blocks.map(b => b.priorityFeePerGas[1]));
         const fast    = avg(blocks.map(b => b.priorityFeePerGas[2]));
-        
+
         web3[network].eth.getBlock("latest").then((block) => {
-            const baseFeePerGas = Number(block.baseFeePerGas) || 1000000000;
+            const baseFeePerGas = Number(block.baseFeePerGas) || (blocks[0] && blocks[0].baseFeePerGas) || 1000000000;
             estimate[network] = {
                 slow: slow + baseFeePerGas,
                 average: average + baseFeePerGas,

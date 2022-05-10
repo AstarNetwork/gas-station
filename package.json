@@ -21,6 +21,7 @@
   "homepage": "https://github.com/AstarNetwork/gas-station#readme",
   "dependencies": {
     "@polkadot/api": "^6.3.2-7",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
     "node-fetch": "^3.2.4",
     "sqlite3": "^5.0.6",
