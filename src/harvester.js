@@ -37,7 +37,7 @@ export function harvest(network) {
     if (!web3[network]) {
         return console.error(`No web3 instance for ${network}`);
     }
-    web3[network].eth.getFeeHistory(historicalBlocks, "latest", [10, 75, 90]).then((feeHistory) => {
+    web3[network].eth.getFeeHistory(historicalBlocks, "latest", [10, 70, 90]).then((feeHistory) => {
         const blocks = formatFeeHistory(feeHistory);
         
         const slow    = avg(blocks.map(b => b.priorityFeePerGas[0]));
