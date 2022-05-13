@@ -3,7 +3,7 @@ import cors from 'cors';
 
 import { harvest, estimate } from './harvester.js';
 
-const BLOCK_INTERVAL = 12000;
+const BLOCK_INTERVAL = 5000;
 
 const app = express()
 
