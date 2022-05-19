@@ -19,6 +19,11 @@ export const estimate = {
       },
       baseFeePerGas: 1000000000,
     },
+    tip: {
+      slow: calculatePriorityFeeToTip(2535532476),
+      average: calculatePriorityFeeToTip(3504034937),
+      fast: calculatePriorityFeeToTip(57799450137),
+    },
   },
   shiden: {
     slow: 3535532476,
@@ -33,6 +38,11 @@ export const estimate = {
       },
       baseFeePerGas: 1000000000,
     },
+    tip: {
+      slow: calculatePriorityFeeToTip(2535532476),
+      average: calculatePriorityFeeToTip(3504034937),
+      fast: calculatePriorityFeeToTip(57799450137),
+    },
   },
   astar: {
     slow: 3535532476,
@@ -46,6 +56,11 @@ export const estimate = {
         fast: 57799450137,
       },
       baseFeePerGas: 1000000000,
+    },
+    tip: {
+      slow: calculatePriorityFeeToTip(2535532476),
+      average: calculatePriorityFeeToTip(3504034937),
+      fast: calculatePriorityFeeToTip(57799450137),
     },
   },
 };
