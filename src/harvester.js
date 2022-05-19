@@ -1,4 +1,5 @@
 import web3 from './web3.js';
+import { ethers } from 'ethers';
 
 const historicalBlocks = 200;
 
@@ -103,6 +104,11 @@ export function harvest(network) {
                             fast: fast,
                         },
                         baseFeePerGas: baseFeePerGas,
+                    },
+                    tip: {
+                        slow: ethers.utils.formatUnits(String(slow), 15).toString(),
+                        average: ethers.utils.formatUnits(String(average), 15).toString(),
+                        fast: ethers.utils.formatUnits(String(fast), 15).toString(),
                     }
                 };
                 console.log("estimate:", network, estimate[network]);
