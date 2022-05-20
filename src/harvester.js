@@ -7,67 +7,67 @@ const timestamp = Date.now();
 
 export const estimate = {
   shibuya: {
-    slow: 3535532476,
-    average: 4504034937,
-    fast: 58799450137,
+    slow: '3535532476',
+    average: '4504034937',
+    fast: '58799450137',
     timestamp: timestamp,
     eip1559: {
       priorityFeePerGas: {
-        slow: 2535532476,
-        average: 3504034937,
-        fast: 57799450137,
+        slow: '2535532476',
+        average: '3504034937',
+        fast: '57799450137',
       },
-      baseFeePerGas: 1000000000,
+      baseFeePerGas: '1000000000',
     },
     tip: {
-      slow: calculatePriorityFeeToTip(2535532476),
-      average: calculatePriorityFeeToTip(3504034937),
-      fast: calculatePriorityFeeToTip(57799450137),
+      slow: calculatePriorityFeeToTip('2535532476'),
+      average: calculatePriorityFeeToTip('3504034937'),
+      fast: calculatePriorityFeeToTip('57799450137'),
     },
   },
   shiden: {
-    slow: 3535532476,
-    average: 4504034937,
-    fast: 58799450137,
+    slow: '3535532476',
+    average: '4504034937',
+    fast: '58799450137',
     timestamp: timestamp,
     eip1559: {
       priorityFeePerGas: {
-        slow: 2535532476,
-        average: 3504034937,
-        fast: 57799450137,
+        slow: '2535532476',
+        average: '3504034937',
+        fast: '57799450137',
       },
-      baseFeePerGas: 1000000000,
+      baseFeePerGas: '1000000000',
     },
     tip: {
-      slow: calculatePriorityFeeToTip(2535532476),
-      average: calculatePriorityFeeToTip(3504034937),
-      fast: calculatePriorityFeeToTip(57799450137),
+      slow: calculatePriorityFeeToTip('2535532476'),
+      average: calculatePriorityFeeToTip('3504034937'),
+      fast: calculatePriorityFeeToTip('57799450137'),
     },
   },
   astar: {
-    slow: 3535532476,
-    average: 4504034937,
-    fast: 58799450137,
+    slow: '3535532476',
+    average: '4504034937',
+    fast: '58799450137',
     timestamp: timestamp,
     eip1559: {
       priorityFeePerGas: {
-        slow: 2535532476,
-        average: 3504034937,
-        fast: 57799450137,
+        slow: '2535532476',
+        average: '3504034937',
+        fast: '57799450137',
       },
-      baseFeePerGas: 1000000000,
+      baseFeePerGas: '1000000000',
     },
     tip: {
-      slow: calculatePriorityFeeToTip(2535532476),
-      average: calculatePriorityFeeToTip(3504034937),
-      fast: calculatePriorityFeeToTip(57799450137),
+      slow: calculatePriorityFeeToTip('2535532476'),
+      average: calculatePriorityFeeToTip('3504034937'),
+      fast: calculatePriorityFeeToTip('57799450137'),
     },
   },
 };
 
 function avg(arr) {
   const sum = arr.reduce((a, v) => a + v);
-  return Math.round(sum / arr.length);
+  return Math.round(sum / arr.length).toString();
 }
 
 function formatFeeHistory(result) {
@@ -115,9 +115,9 @@ export function harvest(network) {
           .getBlock('latest')
           .then((block) => {
             const baseFeePerGas =
-              Number(block.baseFeePerGas) ||
-              (blocks[0] && blocks[0].baseFeePerGas) ||
-              1000000000;
+              Number(block.baseFeePerGas).toString() ||
+              (blocks[0] && blocks[0].baseFeePerGas).toString() ||
+              '1000000000';
             estimate[network] = {
               slow: slow + baseFeePerGas,
               average: average + baseFeePerGas,
