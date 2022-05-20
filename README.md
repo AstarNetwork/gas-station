@@ -31,7 +31,7 @@ You can get the gas for different chain with these http APIs.
 - Astar: GET http://localhost:3000/api/astar/gasnow
 
 Response
-
+```
 {
     "code":200,
     "data":{
@@ -54,6 +54,7 @@ Response
         }
     }
 }
+```
 
 ## Response parameters
 
