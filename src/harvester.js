@@ -67,7 +67,7 @@ export const estimate = {
 
 function avg(arr) {
   const sum = arr.reduce((a, v) => a + v);
-  return Math.round(sum / arr.length).toString();
+  return Math.round(sum / arr.length);
 }
 
 function formatFeeHistory(result) {
@@ -115,26 +115,26 @@ export function harvest(network) {
           .getBlock('latest')
           .then((block) => {
             const baseFeePerGas =
-              Number(block.baseFeePerGas).toString() ||
-              (blocks[0] && blocks[0].baseFeePerGas).toString() ||
-              '1000000000';
+              Number(block.baseFeePerGas) ||
+              (blocks[0] && blocks[0].baseFeePerGas) ||
+              1000000000;
             estimate[network] = {
-              slow: slow + baseFeePerGas,
-              average: average + baseFeePerGas,
-              fast: fast + baseFeePerGas,
+              slow: String(slow + baseFeePerGas),
+              average: String(average + baseFeePerGas),
+              fast: String(fast + baseFeePerGas),
               timestamp: Date.now(),
               eip1559: {
                 priorityFeePerGas: {
-                  slow: slow,
-                  average: average,
-                  fast: fast,
+                  slow: String(slow),
+                  average: String(average),
+                  fast: String(fast),
                 },
-                baseFeePerGas: baseFeePerGas,
+                baseFeePerGas: String(baseFeePerGas),
               },
               tip: {
-                slow: calculatePriorityFeeToTip(slow),
-                average: calculatePriorityFeeToTip(average),
-                fast: calculatePriorityFeeToTip(fast),
+                slow: calculatePriorityFeeToTip(String(slow)),
+                average: calculatePriorityFeeToTip(String(average)),
+                fast: calculatePriorityFeeToTip(String(fast)),
               },
             };
             console.log('estimate:', network, estimate[network]);
