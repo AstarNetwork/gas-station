@@ -120,8 +120,8 @@ exports.harvest = function(network, cb) {
 
   oracle.gasPricesWithEstimate(options).then((result) => {
     const baseFeePerGas = result.estimate.baseFee * Math.pow(10, 10);
-    const maxFeePerGas = result.estimate.maxFeePerGas * Math.pow(10, 10);
-    const maxPriorityFeePerGas = result.estimate.maxPriorityFeePerGas * Math.pow(10, 10); // eslint-disable-line
+    const maxFeePerGas = result.estimate.maxFeePerGas * Math.pow(10, 9);
+    const maxPriorityFeePerGas = result.estimate.maxPriorityFeePerGas * Math.pow(10, 9); // eslint-disable-line
     const slow = result.gasPrices.standard * Math.pow(10, 10);
     const average = result.gasPrices.fast * Math.pow(10, 10);
     const fast = result.gasPrices.instant * Math.pow(10, 10);
