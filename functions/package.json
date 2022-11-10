@@ -17,6 +17,7 @@
     "ethers": "^5.6.8",
     "firebase-admin": "^9.8.0",
     "firebase-functions": "^3.14.1",
+    "gas-price-oracle": "^0.5.2",
     "web3": "^1.7.3"
   },
   "devDependencies": {
