@@ -1,7 +1,44 @@
-import web3 from './web3.js';
+/* eslint-disable require-jsdoc */
+import {GasPriceOracle} from 'gas-price-oracle';
+
 import { calculatePriorityFeeToTip } from './utils/index.js';
 
-const historicalBlocks = 200;
+const astarOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.astar.network',
+  blocksCount: 200,
+  chainId: 592,
+});
+
+const shidenOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.shiden.astar.network',
+  blocksCount: 200,
+  chainId: 336,
+});
+
+const shibuyaOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.shibuya.astar.network',
+  blocksCount: 200,
+  chainId: 81,
+});
+
+const fallbackGasPrices = {
+  gasPrices: {
+    instant: 30,
+    fast: 20,
+    standard: 15,
+    low: 10,
+  },
+  estimated: {
+    maxFeePerGas: 20,
+    maxPriorityFeePerGas: 3,
+  },
+};
+
+const oracles = {
+  astar: astarOracle,
+  shibuya: shidenOracle,
+  shiden: shibuyaOracle,
+};
 
 const timestamp = Date.now();
 
@@ -65,86 +102,56 @@ export const estimate = {
   },
 };
 
-function avg(arr) {
-  const sum = arr.reduce((a, v) => a + v);
-  return Math.round(sum / arr.length);
-}
+export const harvest = function(network, cb) {
+  const oracle = oracles[network];
 
-function formatFeeHistory(result) {
-  try {
-    let blockNum = Number(result.oldestBlock);
-    let index = 0;
-    const blocks = [];
+  if (!oracle) {
+    return cb(new Error(`No web3 instance for ${network}`));
+  }
 
-    while (
-      blockNum < Number(result.oldestBlock) + historicalBlocks &&
-      result.reward &&
-      result.reward[index]
-    ) {
-      blocks.push({
-        number: blockNum,
-        baseFeePerGas: Number(result.baseFeePerGas[index]),
-        gasUsedRatio: Number(result.gasUsedRatio[index]),
-        priorityFeePerGas: result.reward[index].map((x) => Number(x)),
-      });
-      blockNum += 1;
-      index += 1;
+  const options = {fallbackGasPrices, shouldGetMedian: true};
+
+  oracle.gasPricesWithEstimate(options).then((result) => {
+    const baseFeePerGas = result.estimate.baseFee * Math.pow(10, 9);
+    const maxFeePerGas = result.estimate.maxFeePerGas * Math.pow(10, 9);
+    const maxPriorityFeePerGas = result.estimate.maxPriorityFeePerGas* Math.pow(10, 9);
+    const slow = result.gasPrices.standard * Math.pow(10, 9);
+    const average = result.gasPrices.fast * Math.pow(10, 9);
+    const fast = result.gasPrices.instant * Math.pow(10, 9);
+
+    estimate[network] = {
+      slow: String(slow + baseFeePerGas),
+      average: String(average + baseFeePerGas),
+      fast: String(fast + baseFeePerGas),
+      timestamp: Date.now(),
+      eip1559: {
+        priorityFeePerGas: {
+          slow: String(slow),
+          average: String(average),
+          fast: String(fast),
+        },
+        maxFeePerGas: String(maxFeePerGas),
+        maxPriorityFeePerGas: String(maxPriorityFeePerGas),
+        baseFeePerGas: String(baseFeePerGas),
+      },
+      tip: {
+        slow: calculatePriorityFeeToTip(String(slow)),
+        average: calculatePriorityFeeToTip(String(average)),
+        fast: calculatePriorityFeeToTip(String(fast)),
+      },
+    };
+    console.log('estimate:', network, estimate[network]);
+    if (cb) {
+      cb(null, estimate[network]);
     }
+  }).catch((err) => {
+    console.error(err);
+    if (cb) {
+      cb(err);
+    }
+  });
+};
 
-    return blocks;
-  } catch (error) {
-    return [];
-  }
-}
-
-export function harvest(network) {
-  if (!web3[network]) {
-    return console.error(`No web3 instance for ${network}`);
-  }
-  web3[network].eth
-    .getFeeHistory(historicalBlocks, 'latest', [10, 70, 90])
-    .then((feeHistory) => {
-      const blocks = formatFeeHistory(feeHistory);
-
-      if (blocks.length) {
-        const slow = avg(blocks.map((b) => b.priorityFeePerGas[0]));
-        const average = avg(blocks.map((b) => b.priorityFeePerGas[1]));
-        const fast = avg(blocks.map((b) => b.priorityFeePerGas[2]));
-
-        web3[network].eth
-          .getBlock('latest')
-          .then((block) => {
-            const baseFeePerGas =
-              Number(block.baseFeePerGas) ||
-              (blocks[0] && blocks[0].baseFeePerGas) ||
-              1000000000;
-            estimate[network] = {
-              slow: String(slow + baseFeePerGas),
-              average: String(average + baseFeePerGas),
-              fast: String(fast + baseFeePerGas),
-              timestamp: Date.now(),
-              eip1559: {
-                priorityFeePerGas: {
-                  slow: String(slow),
-                  average: String(average),
-                  fast: String(fast),
-                },
-                baseFeePerGas: String(baseFeePerGas),
-              },
-              tip: {
-                slow: calculatePriorityFeeToTip(String(slow)),
-                average: calculatePriorityFeeToTip(String(average)),
-                fast: calculatePriorityFeeToTip(String(fast)),
-              },
-            };
-            console.log('estimate:', network, estimate[network]);
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-}
+// if (require.main === module) {
+//   exports.harvest('astar', console.log);
+// }

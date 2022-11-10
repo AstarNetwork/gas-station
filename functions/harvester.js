@@ -1,11 +1,42 @@
 /* eslint-disable require-jsdoc */
 const ethers = require('ethers');
-const Web3 = require('web3');
+const {GasPriceOracle} = require('gas-price-oracle');
 
-const endpoints = {
-  astar: 'wss://rpc.astar.network',
-  shibuya: 'wss://rpc.shibuya.astar.network',
-  shiden: 'wss://rpc.shiden.astar.network',
+const astarOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.astar.network',
+  blocksCount: 200,
+  chainId: 592,
+});
+
+const shidenOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.shiden.astar.network',
+  blocksCount: 200,
+  chainId: 336,
+});
+
+const shibuyaOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.shibuya.astar.network',
+  blocksCount: 200,
+  chainId: 81,
+});
+
+const fallbackGasPrices = {
+  gasPrices: {
+    instant: 30,
+    fast: 20,
+    standard: 15,
+    low: 10,
+  },
+  estimated: {
+    maxFeePerGas: 20,
+    maxPriorityFeePerGas: 3,
+  },
+};
+
+const oracles = {
+  astar: astarOracle,
+  shibuya: shidenOracle,
+  shiden: shibuyaOracle,
 };
 
 const calculatePriorityFeeToTip = (fee) => {
@@ -15,8 +46,6 @@ const calculatePriorityFeeToTip = (fee) => {
   const wei = ethers.utils.parseEther(eth).toString();
   return wei;
 };
-
-const historicalBlocks = 200;
 
 const timestamp = Date.now();
 
@@ -80,101 +109,54 @@ const estimate = {
   },
 };
 
-function avg(arr) {
-  const sum = arr.reduce((a, v) => a + v);
-  return Math.round(sum / arr.length);
-}
-
-function formatFeeHistory(result) {
-  try {
-    let blockNum = Number(result.oldestBlock);
-    let index = 0;
-    const blocks = [];
-
-    while (
-      blockNum < Number(result.oldestBlock) + historicalBlocks &&
-      result.reward &&
-      result.reward[index]
-    ) {
-      blocks.push({
-        number: blockNum,
-        baseFeePerGas: Number(result.baseFeePerGas[index]),
-        gasUsedRatio: Number(result.gasUsedRatio[index]),
-        priorityFeePerGas: result.reward[index].map((x) => Number(x)),
-      });
-      blockNum += 1;
-      index += 1;
-    }
-
-    return blocks;
-  } catch (error) {
-    return [];
-  }
-}
-
 exports.harvest = function(network, cb) {
-  const endpoint = endpoints[network];
+  const oracle = oracles[network];
 
-  if (!endpoint) {
+  if (!oracle) {
     return cb(new Error(`No web3 instance for ${network}`));
   }
 
-  const web3 = new Web3(endpoint);
-  web3.eth
-      .getFeeHistory(historicalBlocks, 'latest', [10, 70, 90])
-      .then((feeHistory) => {
-        const blocks = formatFeeHistory(feeHistory);
+  const options = {fallbackGasPrices, shouldGetMedian: true};
 
-        if (blocks.length) {
-          const slow = avg(blocks.map((b) => b.priorityFeePerGas[0]));
-          const average = avg(blocks.map((b) => b.priorityFeePerGas[1]));
-          const fast = avg(blocks.map((b) => b.priorityFeePerGas[2]));
+  oracle.gasPricesWithEstimate(options).then((result) => {
+    const baseFeePerGas = result.estimate.baseFee * Math.pow(10, 9);
+    const maxFeePerGas = result.estimate.maxFeePerGas * Math.pow(10, 9);
+    const maxPriorityFeePerGas = result.estimate.maxPriorityFeePerGas * Math.pow(10, 9); // eslint-disable-line
+    const slow = result.gasPrices.standard * Math.pow(10, 9);
+    const average = result.gasPrices.fast * Math.pow(10, 9);
+    const fast = result.gasPrices.instant * Math.pow(10, 9);
 
-          web3.eth
-              .getBlock('latest')
-              .then((block) => {
-                const baseFeePerGas =
-                  Number(block.baseFeePerGas) ||
-                  (blocks[0] && blocks[0].baseFeePerGas) ||
-                  1000000000;
-                estimate[network] = {
-                  slow: String(slow + baseFeePerGas),
-                  average: String(average + baseFeePerGas),
-                  fast: String(fast + baseFeePerGas),
-                  timestamp: Date.now(),
-                  eip1559: {
-                    priorityFeePerGas: {
-                      slow: String(slow),
-                      average: String(average),
-                      fast: String(fast),
-                    },
-                    baseFeePerGas: String(baseFeePerGas),
-                  },
-                  tip: {
-                    slow: calculatePriorityFeeToTip(String(slow)),
-                    average: calculatePriorityFeeToTip(String(average)),
-                    fast: calculatePriorityFeeToTip(String(fast)),
-                  },
-                };
-                console.log('estimate:', network, estimate[network]);
-                if (cb) {
-                  cb(null, estimate[network]);
-                }
-              })
-              .catch((err) => {
-                console.error(err);
-                if (cb) {
-                  cb(err);
-                }
-              });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        if (cb) {
-          cb(err);
-        }
-      });
+    estimate[network] = {
+      slow: String(slow + baseFeePerGas),
+      average: String(average + baseFeePerGas),
+      fast: String(fast + baseFeePerGas),
+      timestamp: Date.now(),
+      eip1559: {
+        priorityFeePerGas: {
+          slow: String(slow),
+          average: String(average),
+          fast: String(fast),
+        },
+        maxFeePerGas: String(maxFeePerGas),
+        maxPriorityFeePerGas: String(maxPriorityFeePerGas),
+        baseFeePerGas: String(baseFeePerGas),
+      },
+      tip: {
+        slow: calculatePriorityFeeToTip(String(slow)),
+        average: calculatePriorityFeeToTip(String(average)),
+        fast: calculatePriorityFeeToTip(String(fast)),
+      },
+    };
+    console.log('estimate:', network, estimate[network]);
+    if (cb) {
+      cb(null, estimate[network]);
+    }
+  }).catch((err) => {
+    console.error(err);
+    if (cb) {
+      cb(err);
+    }
+  });
 };
 
 if (require.main === module) {
