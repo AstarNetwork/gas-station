@@ -1,6 +1,16 @@
 /* eslint-disable require-jsdoc */
+/* eslint-disable max-len */
 const ethers = require('ethers');
 const {GasPriceOracle} = require('gas-price-oracle');
+const Web3 = require('web3');
+const percentile = require('percentile');
+
+const web3 = {
+  astar: new Web3('wss://rpc.astar.network'),
+  shibuya: new Web3('wss://rpc.shibuya.astar.network'),
+  shiden: new Web3('wss://rpc.shiden.astar.network'),
+  rocstar: new Web3('wss://rocstar.astar.network'),
+};
 
 const astarOracle = new GasPriceOracle({
   defaultRpc: 'https://evm.astar.network',
@@ -20,6 +30,12 @@ const shibuyaOracle = new GasPriceOracle({
   chainId: 81,
 });
 
+const rocstarOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.rocstar.astar.network',
+  blocksCount: 200,
+  chainId: 692,
+});
+
 const fallbackGasPrices = {
   gasPrices: {
     instant: 30,
@@ -35,8 +51,9 @@ const fallbackGasPrices = {
 
 const oracles = {
   astar: astarOracle,
-  shibuya: shidenOracle,
-  shiden: shibuyaOracle,
+  shibuya: shibuyaOracle,
+  shiden: shidenOracle,
+  rocstar: rocstarOracle,
 };
 
 const calculatePriorityFeeToTip = (fee) => {
@@ -107,6 +124,25 @@ const estimate = {
       fast: calculatePriorityFeeToTip('57799450137'),
     },
   },
+  rocstar: {
+    slow: '3535532476',
+    average: '4504034937',
+    fast: '58799450137',
+    timestamp: timestamp,
+    eip1559: {
+      priorityFeePerGas: {
+        slow: '2535532476',
+        average: '3504034937',
+        fast: '57799450137',
+      },
+      baseFeePerGas: '1000000000',
+    },
+    tip: {
+      slow: calculatePriorityFeeToTip('2535532476'),
+      average: calculatePriorityFeeToTip('3504034937'),
+      fast: calculatePriorityFeeToTip('57799450137'),
+    },
+  },
 };
 
 exports.harvest = function(network, cb) {
@@ -118,33 +154,55 @@ exports.harvest = function(network, cb) {
 
   const options = {fallbackGasPrices, shouldGetMedian: true};
 
-  oracle.gasPricesWithEstimate(options).then((result) => {
-    const baseFeePerGas = result.estimate.baseFee * Math.pow(10, 10);
-    const maxFeePerGas = result.estimate.maxFeePerGas * Math.pow(10, 9);
-    const maxPriorityFeePerGas = result.estimate.maxPriorityFeePerGas * Math.pow(10, 9); // eslint-disable-line
-    const slow = result.gasPrices.standard * Math.pow(10, 10);
-    const average = result.gasPrices.fast * Math.pow(10, 10);
-    const fast = result.gasPrices.instant * Math.pow(10, 10);
+  oracle.gasPricesWithEstimate(options).then(async (result) => {
+    const latest = await web3[network].eth.getBlock('latest');
+    const gasPrices = [];
+
+    let block;
+    let txn;
+
+    for (let i = latest.number; i > latest.number - 20; i--) {
+      block = await web3[network].eth.getBlock(i);
+      for (let j = 0; j < block.transactions.length; j++) {
+        txn = await web3[network].eth.getTransaction(block.transactions[j]);
+        gasPrices.push(Number(txn.gasPrice));
+      }
+    }
+
+    const percentiles = percentile([35, 60, 90, 99], gasPrices);
+
+    const gwei = ethers.BigNumber.from(10).pow(ethers.BigNumber.from(9));
+
+    const baseFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.baseFee) || 1).mul(gwei);
+    const maxFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.maxFeePerGas) || 20).mul(gwei);
+    const maxPriorityFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.maxPriorityFeePerGas) || 30).mul(gwei);
+    const slow = ethers.BigNumber.from(percentiles[0] || 50000000000);
+    const average = ethers.BigNumber.from(percentiles[1] || 100000000000);
+    const fast = ethers.BigNumber.from(percentiles[2] || 200000000000);
+    const fastest = ethers.BigNumber.from(percentiles[3] || 400000000000);
 
     estimate[network] = {
-      slow: String(slow + baseFeePerGas),
-      average: String(average + baseFeePerGas),
-      fast: String(fast + baseFeePerGas),
+      slow: slow.toString(),
+      average: average.toString(),
+      fast: fast.toString(),
+      fastest: fastest.toString(),
       timestamp: Date.now(),
       eip1559: {
         priorityFeePerGas: {
-          slow: String(slow),
-          average: String(average),
-          fast: String(fast),
+          slow: slow.toString(),
+          average: average.toString(),
+          fast: fast.toString(),
+          fastest: fastest.toString(),
         },
-        maxFeePerGas: String(maxFeePerGas),
-        maxPriorityFeePerGas: String(maxPriorityFeePerGas),
-        baseFeePerGas: String(baseFeePerGas),
+        maxFeePerGas: maxFeePerGas.toString(),
+        maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+        baseFeePerGas: baseFeePerGas.toString(),
       },
       tip: {
-        slow: calculatePriorityFeeToTip(String(slow)),
-        average: calculatePriorityFeeToTip(String(average)),
-        fast: calculatePriorityFeeToTip(String(fast)),
+        slow: calculatePriorityFeeToTip(slow.toString()),
+        average: calculatePriorityFeeToTip(average.toString()),
+        fast: calculatePriorityFeeToTip(fast.toString()),
+        fastest: calculatePriorityFeeToTip(fastest.toString()),
       },
     };
     console.log('estimate:', network, estimate[network]);

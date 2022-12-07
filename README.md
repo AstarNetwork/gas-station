@@ -29,6 +29,7 @@ You can get the gas for different chain with these http APIs.
 - Shibuya: GET http://localhost:3000/api/shibuya/gasnow
 - Shiden: GET http://localhost:3000/api/shiden/gasnow
 - Astar: GET http://localhost:3000/api/astar/gasnow
+- Rocstar: GET http://localhost:3000/api/rocstar/gasnow
 
 Response
 ```

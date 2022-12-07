@@ -21,6 +21,12 @@ const shibuyaOracle = new GasPriceOracle({
   chainId: 81,
 });
 
+const rocstarOracle = new GasPriceOracle({
+  defaultRpc: 'https://evm.rocstar.astar.network',
+  blocksCount: 200,
+  chainId: 692,
+});
+
 const fallbackGasPrices = {
   gasPrices: {
     instant: 30,
@@ -36,8 +42,9 @@ const fallbackGasPrices = {
 
 const oracles = {
   astar: astarOracle,
-  shibuya: shidenOracle,
-  shiden: shibuyaOracle,
+  shibuya: shibuyaOracle,
+  shiden: shidenOracle,
+  rocstar: rocstarOracle,
 };
 
 const timestamp = Date.now();
@@ -82,6 +89,25 @@ export const estimate = {
     },
   },
   astar: {
+    slow: '3535532476',
+    average: '4504034937',
+    fast: '58799450137',
+    timestamp: timestamp,
+    eip1559: {
+      priorityFeePerGas: {
+        slow: '2535532476',
+        average: '3504034937',
+        fast: '57799450137',
+      },
+      baseFeePerGas: '1000000000',
+    },
+    tip: {
+      slow: calculatePriorityFeeToTip('2535532476'),
+      average: calculatePriorityFeeToTip('3504034937'),
+      fast: calculatePriorityFeeToTip('57799450137'),
+    },
+  },
+  rocstar: {
     slow: '3535532476',
     average: '4504034937',
     fast: '58799450137',

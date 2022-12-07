@@ -4,8 +4,6 @@ const functions = require('firebase-functions');
 const {harvest} = require('./harvester');
 const cors = require('cors');
 
-const networks = ['astar', 'shiden', 'shibuya'];
-
 // The Firebase Admin SDK to access Firestore.
 const admin = require('firebase-admin');
 admin.initializeApp();
@@ -44,19 +42,78 @@ exports.harvestFunction = functions
     .pubsub
     .schedule('every 1 minutes')
     .onRun((context) => {
-      networks.forEach((network) => {
-        harvest(network, (err, result) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          admin
-              .firestore()
-              .collection('gasfee')
-              .doc(network)
-              .set(result)
-              .then(console.log)
-              .catch(console.error);
-        });
+      const network = 'astar';
+      harvest(network, (err, result) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        admin
+            .firestore()
+            .collection('gasfee')
+            .doc(network)
+            .set(result)
+            .then(console.log)
+            .catch(console.error);
+      });
+    });
+
+exports.shidenHarvestFunction = functions
+    .pubsub
+    .schedule('every 1 minutes')
+    .onRun((context) => {
+      const network = 'shiden';
+      harvest(network, (err, result) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        admin
+            .firestore()
+            .collection('gasfee')
+            .doc(network)
+            .set(result)
+            .then(console.log)
+            .catch(console.error);
+      });
+    });
+
+exports.shibuyaHarvestFunction = functions
+    .pubsub
+    .schedule('every 1 minutes')
+    .onRun((context) => {
+      const network = 'shibuya';
+      harvest(network, (err, result) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        admin
+            .firestore()
+            .collection('gasfee')
+            .doc(network)
+            .set(result)
+            .then(console.log)
+            .catch(console.error);
+      });
+    });
+
+exports.rocstarHarvestFunction = functions
+    .pubsub
+    .schedule('every 1 minutes')
+    .onRun((context) => {
+      const network = 'rocstar';
+      harvest(network, (err, result) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        admin
+            .firestore()
+            .collection('gasfee')
+            .doc(network)
+            .set(result)
+            .then(console.log)
+            .catch(console.error);
       });
     });

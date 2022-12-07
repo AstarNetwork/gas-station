@@ -1,21 +1,28 @@
-import { GasPriceOracle } from 'gas-price-oracle';
+import web3 from './web3.js';
+import percentile from 'percentile';
 
-const defaultRpc = 'https://evm.astar.network';
-const oracle = new GasPriceOracle({ defaultRpc, chainId: 592 })
 
-const fallbackGasPrices = {
-  gasPrices: {
-    instant: 28,
-    fast: 22,
-    standard: 17,
-    low: 11,
-  },
-  estimated: {
-    maxFeePerGas: 20,
-    maxPriorityFeePerGas: 3,
-  },
+export async function harvest(network) {
+  const latest = await web3[network].eth.getBlock('latest')
+  // .getFeeHistory(10, 'latest', [35, 60, 90])
+  const gasPrices = [];
+
+  let block;
+  let txn;
+
+  console.log(latest);
+
+  for (let i = latest.number; i > latest.number - 20; i--) {
+    block =  await web3[network].eth.getBlock(i);
+    for (let j = 0; j < block.transactions.length; j++) {
+      txn = await web3[network].eth.getTransaction(block.transactions[j]);
+      console.log(txn.hash, txn.gasPrice);
+      gasPrices.push(Number(txn.gasPrice));
+    }
+  }
+
+  console.log(percentile([35, 60, 99], gasPrices));
+
 }
 
-oracle.gasPricesWithEstimate({ fallbackGasPrices, shouldGetMedian: true }).then((gasPrices) => {
-  console.log(gasPrices);
-})
+harvest('astar').catch(console.error);
