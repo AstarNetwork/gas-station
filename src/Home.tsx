@@ -90,6 +90,8 @@ function Home() {
     setOpen(!open);
   };
 
+  const logo = '/astar_logo.png';
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -129,17 +131,15 @@ function Home() {
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
+
           <Toolbar
             sx={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
               px: [1],
             }}
           >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
+            <img src={logo} alt="logo" height="50px" />
           </Toolbar>
           <Divider />
           <List component="nav">
