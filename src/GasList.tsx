@@ -53,7 +53,7 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
         const result: Transaction[] = data.list.map((txn: any): Transaction => {
           const transaction: Transaction = {
             time: (dayjs as any).unix(txn.block_timestamp).fromNow(),
-            hash: shortenHash(txn.hash),
+            hash: txn.hash,
             from: txn.from,
             gasPrice: txn.gas_price,
             gasUsed: txn.gas_used,
@@ -79,15 +79,19 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
             <TableCell>Date</TableCell>
             <TableCell>Txn Hash</TableCell>
             <TableCell>From</TableCell>
-            <TableCell>Gas Price</TableCell>
-            <TableCell>Gas Used</TableCell>
+            <TableCell>Gas Price (Wei)</TableCell>
+            <TableCell>Gas Used (Units)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {transactions.map((txn) => (
             <TableRow key={txn.hash}>
               <TableCell>{txn.time}</TableCell>
-              <TableCell>{txn.hash}</TableCell>
+              <TableCell>
+                <a target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/extrinsic/${txn.hash}`}>
+                  {shortenHash(txn.hash)}
+                </a>
+              </TableCell>
               <TableCell>{txn.from}</TableCell>
               <TableCell>{txn.gasPrice}</TableCell>
               <TableCell>{txn.gasUsed}</TableCell>

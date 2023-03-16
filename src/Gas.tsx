@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
 import GasList from './GasList';
 
 interface GasProps {
@@ -18,6 +19,23 @@ const Gas: React.FC<GasProps> = ({ network }) => {
   const [averagePriorityFee, setAveragePriorityFee] = useState(0);
   const [fastPriorityFee, setFastPriorityFee] = useState(0);
   const [error, setError] = useState('');
+
+  const copyToClipboard = (speed: string) => {
+    let text = '';
+    switch (speed) {
+      case 'slow':
+        text = `{"gasPrice": "${slow}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${slowPriorityFee}" } }`;
+        break;
+      case 'average':
+        text = `{"gasPrice": "${average}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${averagePriorityFee}" } }`;
+        break;
+      case 'fast':
+        text = `{"gasPrice": "${fast}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${fastPriorityFee}" } }`;
+        break;
+    }
+    navigator.clipboard.writeText(text)
+  }
+
 
   useEffect(() => {
     if (!network) {
@@ -52,74 +70,86 @@ const Gas: React.FC<GasProps> = ({ network }) => {
     <Grid container spacing={3}>
       {/* Chart */}
       <Grid item xs={12} md={4} lg={4}>
-        <Paper
-          sx={{
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            height: 240,
-          }}
-        >
-          <Typography variant="h4" color="text.secondary" align="center">
-            Fast
-          </Typography>
-          <Typography variant="h2" align="center">
-            {Math.round(fast/Math.pow(10, 9))} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Priority Fee: {Math.round(fastPriorityFee/Math.pow(10, 9))} Gwei
-          </Typography>
-        </Paper>
+        <Tooltip title="Click to copy">
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 240,
+              cursor: 'pointer'
+            }}
+            onClick={() => { copyToClipboard('fast') }}
+          >
+            <Typography variant="h4" color="text.secondary" align="center">
+              Fast
+            </Typography>
+            <Typography variant="h2" align="center">
+              {Math.round(fast/Math.pow(10, 9))} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Priority Fee: {Math.round(fastPriorityFee/Math.pow(10, 9))} Gwei
+            </Typography>
+          </Paper>
+        </Tooltip>
       </Grid>
       {/* Recent Deposits */}
       <Grid item xs={12} md={4} lg={4}>
-        <Paper
-          sx={{
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            height: 240,
-          }}
-        >
-          <Typography variant="h4" color="text.secondary" align="center">
-            Average
-          </Typography>
-          <Typography variant="h2" align="center">
-            {Math.round(average/Math.pow(10, 9))} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Priority Fee: {Math.round(averagePriorityFee/Math.pow(10, 9))} Gwei
-          </Typography>
-        </Paper>
+        <Tooltip title="Click to copy">
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 240,
+              cursor: 'pointer'
+            }}
+            onClick={() => { copyToClipboard('average') }}
+          >
+            <Typography variant="h4" color="text.secondary" align="center">
+              Average
+            </Typography>
+            <Typography variant="h2" align="center">
+              {Math.round(average/Math.pow(10, 9))} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Priority Fee: {Math.round(averagePriorityFee/Math.pow(10, 9))} Gwei
+            </Typography>
+          </Paper>
+        </Tooltip>
       </Grid>
       <Grid item xs={12} md={4} lg={4}>
-        <Paper
-          sx={{
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            height: 240,
-          }}
-        >
-          <Typography variant="h4" color="text.secondary" align="center">
-            Slow
-          </Typography>
-          <Typography variant="h2" align="center">
-            {Math.round(slow/Math.pow(10, 9))} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-          </Typography>
-          <Typography color="text.secondary" align="center">
-            Priority Fee: {Math.round(slowPriorityFee/Math.pow(10, 9))} Gwei
-          </Typography>
-        </Paper>
+        <Tooltip title="Click to copy">
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 240,
+              cursor: 'pointer'
+            }}
+            onClick={() => { copyToClipboard('average') }}
+          >
+            <Typography variant="h4" color="text.secondary" align="center">
+              Slow
+            </Typography>
+            <Typography variant="h2" align="center" style={{ cursor: 'pointer' }} onClick={() => { copyToClipboard('slow') }}>
+              {Math.round(slow/Math.pow(10, 9))} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
+            </Typography>
+            <Typography color="text.secondary" align="center">
+              Priority Fee: {Math.round(slowPriorityFee/Math.pow(10, 9))} Gwei
+            </Typography>
+          </Paper>
+        </Tooltip>
       </Grid>
       {/* Last Gas */}
       <Grid item xs={12}>
