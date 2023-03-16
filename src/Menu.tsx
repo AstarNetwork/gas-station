@@ -6,6 +6,7 @@ import ListSubheader from '@mui/material/ListSubheader';
 import EvStationIcon from '@mui/icons-material/EvStation';
 import ScaleIcon from '@mui/icons-material/Scale';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
 export const mainListItems = (
   <React.Fragment>
@@ -14,6 +15,12 @@ export const mainListItems = (
         <EvStationIcon />
       </ListItemIcon>
       <ListItemText primary="Gas" />
+    </ListItemButton>
+    <ListItemButton>
+      <ListItemIcon>
+        <CurrencyExchangeIcon />
+      </ListItemIcon>
+      <ListItemText primary="Tip" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
@@ -39,13 +46,13 @@ export const secondaryListItems = (
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary="Weights" />
+      <ListItemText primary="Tip" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary="Contracts" />
+      <ListItemText primary="Weights" />
     </ListItemButton>
   </React.Fragment>
 );

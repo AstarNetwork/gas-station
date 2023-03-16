@@ -3,14 +3,13 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
+import GasList from './GasList';
 
 interface GasProps {
   network: string;
 }
 
-const Gas: React.FC<GasProps> = ({
-  network,
-}) => {
+const Gas: React.FC<GasProps> = ({ network }) => {
   const [slow, setSlow] = useState(0);
   const [average, setAverage] = useState(0);
   const [fast, setFast] = useState(0);
@@ -122,9 +121,10 @@ const Gas: React.FC<GasProps> = ({
           </Typography>
         </Paper>
       </Grid>
-      {/* Recent Orders */}
+      {/* Last Gas */}
       <Grid item xs={12}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+          <GasList network="astar" />
         </Paper>
       </Grid>
     </Grid>

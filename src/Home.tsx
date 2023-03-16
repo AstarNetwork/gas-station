@@ -129,7 +129,6 @@ function Home() {
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
-
           <Toolbar
             sx={{
               display: 'flex',
