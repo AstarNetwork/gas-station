@@ -10,11 +10,15 @@
     "source": "functions"
   },
   "hosting": {
-    "public": "hosting",
+    "public": "build",
     "rewrites": [
       {
         "source": "/api/**",
         "function": "gasNow"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ],
     "ignore": [
