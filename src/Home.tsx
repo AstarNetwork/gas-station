@@ -9,12 +9,13 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
+import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from './Menu';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Gas from './Gas';
 
 function Copyright(props: any) {
@@ -84,6 +85,15 @@ const mdTheme = createTheme();
 
 function Home() {
   const [open, setOpen] = React.useState(true);
+  const [network, setNetwork] = React.useState('astar');
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -121,11 +131,17 @@ function Home() {
             >
               Gas Station
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            <Tooltip title="Select Network">
+              <IconButton
+                onClick={handleClick}
+                size="small"
+                aria-controls={open ? 'network-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+              >
+                <img src={`/${network}.png`} alt="dropdown" style={{ width: '32px', height: '32px' }} />
+              </IconButton>
+            </Tooltip>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -159,11 +175,65 @@ function Home() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Gas network="astar" />
+            <Gas network={network} />
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
       </Box>
+      <Menu
+        anchorEl={anchorEl}
+        id="network-menu"
+        open={menuOpen}
+        onClose={handleClose}
+        onClick={handleClose}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+            mt: 1.5,
+            '& .MuiAvatar-root': {
+              width: 32,
+              height: 32,
+              ml: -0.5,
+              mr: 1,
+            },
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem onClick={() => {
+          handleClose();
+          setNetwork('astar');
+        }}>
+          <img src={`/astar.png`} alt="dropdown" style={{ width: '32px', height: '32px', marginRight: '5px' }} /> Astar
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleClose();
+          setNetwork('shiden');
+        }}>
+          <img src={`/shiden.png`} alt="dropdown" style={{ width: '32px', height: '32px', marginRight: '5px' }} /> Shiden
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleClose();
+          setNetwork('shibuya');
+        }}>
+          <img src={`/shibuya.png`} alt="dropdown" style={{ width: '32px', height: '32px', marginRight: '5px' }} /> Shibuya
+        </MenuItem>
+      </Menu>
     </ThemeProvider>
   );
 }

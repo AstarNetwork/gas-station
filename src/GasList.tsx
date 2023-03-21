@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import React from 'react';
 import Link from '@mui/material/Link';
@@ -9,6 +9,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
+import { ApiContext } from './ApiContext';
+import { padding } from '@mui/system';
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime)
@@ -19,6 +21,10 @@ function shortenHash(hash: string): string {
 
 function preventDefault(event: any) {
   event.preventDefault();
+}
+
+async function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 interface Transaction {
@@ -36,37 +42,72 @@ interface GasListProps {
 const GasList: React.FC<GasListProps> = ({ network }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [error, setError] = useState('');
+  const {
+    astarApi,
+    astarApiReady,
+    shidenApi,
+    shidenApiReady,
+    shibuyaApi,
+    shibuyaApiReady
+  } = useContext(ApiContext)
 
   useEffect(() => {
     if (!network) {
       return;
     }
-    // invalid url will trigger an 404 error
-    const url = `https://${network}.api.subscan.io/api/scan/evm/transactions`
-    const body = {
-      block_num: 3149433
-    };
-    axios.post(url, body).then((response) => {
-      const data = response?.data?.data;
 
-      if (data?.list?.length) {
-        const result: Transaction[] = data.list.map((txn: any): Transaction => {
-          const transaction: Transaction = {
-            time: (dayjs as any).unix(txn.block_timestamp).fromNow(),
-            hash: txn.hash,
-            from: txn.from,
-            gasPrice: txn.gas_price,
-            gasUsed: txn.gas_used,
+    const api = network === 'shiden' ? shidenApi : network === 'shibuya' ? shibuyaApi : astarApi;
+    const apiReady = network === 'shiden' ? shidenApiReady : network === 'shibuya' ? shibuyaApiReady : astarApiReady;
+
+    if (!api || !apiReady) {
+      return;
+    }
+
+    const getData = async () => {
+      try {
+        setTransactions([]);
+        const block = await api.rpc.chain.getBlock();
+        const blockNumber = block.block.header.number.toNumber();
+        const result: Transaction[] = [];
+
+        // invalid url will trigger an 404 error
+        const url = `https://${network}.api.subscan.io/api/scan/evm/transactions`
+
+        for (let i = 0; i < 5; i++) {
+          const body = {
+            block_num: blockNumber - i - 5
           };
-          return transaction;
-        });
+          const response = await axios.post(url, body)
+          const data = response?.data?.data;
+
+          console.log(data);
+
+          if (data?.list?.length) {
+            data.list.forEach((txn: any) => {
+              const transaction: Transaction = {
+                time: (dayjs as any).unix(txn.block_timestamp).fromNow(),
+                hash: txn.hash,
+                from: txn.from,
+                gasPrice: txn.gas_price,
+                gasUsed: txn.gas_used,
+              };
+              result.push(transaction);
+            });
+          }
+
+          await wait(1000);
+        }
 
         setTransactions(result);
+
+      } catch (error: any) {
+        console.log(error);
+        setError(error.message);
       }
-    }).catch(error => {
-      setError(error);
-    });
-  }, [network]);
+    };
+
+    getData();
+  }, [network, astarApiReady, shidenApiReady, shibuyaApiReady]);
 
   return (
     <React.Fragment>
@@ -84,7 +125,7 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {transactions.map((txn) => (
+          {transactions.length ? transactions.map((txn) => (
             <TableRow key={txn.hash}>
               <TableCell>{txn.time}</TableCell>
               <TableCell>
@@ -96,12 +137,12 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
               <TableCell>{txn.gasPrice}</TableCell>
               <TableCell>{txn.gasUsed}</TableCell>
             </TableRow>
-          ))}
+          )) : <Typography align="center" sx={{p: 2}}>Loading...</Typography>}
         </TableBody>
       </Table>
-      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
-        {'Next >'}
-      </Link>
+      <a style={{padding: 5}} color="primary" target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/evm_transaction`}>
+        {'More >'}
+      </a>
     </React.Fragment>
   );
 }

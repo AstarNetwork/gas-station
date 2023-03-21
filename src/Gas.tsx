@@ -47,17 +47,17 @@ const Gas: React.FC<GasProps> = ({ network }) => {
       const data = response?.data?.data;
 
       if (data) {
-        setSlow(data.average);
-        setAverage(data.fast);
-        setFast(data.fastest);
+        setSlow(data.slow);
+        setAverage(data.average);
+        setFast(data.fast);
 
         const eip1559 = data.eip1559;
 
         if (eip1559) {
           setBaseFee(eip1559.baseFeePerGas);
-          setSlowPriorityFee(eip1559.priorityFeePerGas.average);
-          setAveragePriorityFee(eip1559.priorityFeePerGas.fast);
-          setFastPriorityFee(eip1559.priorityFeePerGas.fastest);
+          setSlowPriorityFee(eip1559.priorityFeePerGas.slow);
+          setAveragePriorityFee(eip1559.priorityFeePerGas.average);
+          setFastPriorityFee(eip1559.priorityFeePerGas.fast);
         }
       }
     }).catch(error => {
@@ -154,7 +154,7 @@ const Gas: React.FC<GasProps> = ({ network }) => {
       {/* Last Gas */}
       <Grid item xs={12}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-          <GasList network="astar" />
+          <GasList network={network} />
         </Paper>
       </Grid>
     </Grid>
