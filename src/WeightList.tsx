@@ -97,7 +97,7 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
   }, [network]);
 
   return (
-    <React.Fragment>
+    <>
       <Typography component="h2" variant="h6" color="primary" gutterBottom>
         Weights History
       </Typography>
@@ -124,13 +124,13 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
               <TableCell>{txn.refTime}</TableCell>
               <TableCell>{txn.proofSize}</TableCell>
             </TableRow>
-          )) : <Typography align="center" sx={{p: 2}}>Loading...</Typography>}
+          )) : <Typography align="center" sx={{p: 2}}>...</Typography>}
         </TableBody>
       </Table>
       <a style={{padding: 5}} color="primary" target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/extrinsic?module=contracts`}>
         {'More >'}
       </a>
-    </React.Fragment>
+    </>
   );
 }
 

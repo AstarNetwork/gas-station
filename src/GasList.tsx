@@ -110,7 +110,7 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
   }, [network, astarApiReady, shidenApiReady, shibuyaApiReady]);
 
   return (
-    <React.Fragment>
+    <>
       <Typography component="h2" variant="h6" color="primary" gutterBottom>
         Gas Usage History
       </Typography>
@@ -137,13 +137,13 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
               <TableCell>{txn.gasPrice}</TableCell>
               <TableCell>{txn.gasUsed}</TableCell>
             </TableRow>
-          )) : <Typography align="center" sx={{p: 2}}>Loading...</Typography>}
+          )) : <Typography align="center" sx={{p: 2}}>...</Typography>}
         </TableBody>
       </Table>
       <a style={{padding: 5}} color="primary" target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/evm_transaction`}>
         {'More >'}
       </a>
-    </React.Fragment>
+    </>
   );
 }
 
