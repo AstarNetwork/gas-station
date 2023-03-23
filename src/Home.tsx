@@ -13,10 +13,19 @@ import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
-import { mainListItems, secondaryListItems } from './Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import EvStationIcon from '@mui/icons-material/EvStation';
+import ScaleIcon from '@mui/icons-material/Scale';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+
 import Gas from './Gas';
+import Weight from './Weight';
 
 function Copyright(props: any) {
   return (
@@ -84,6 +93,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 function Home() {
+  const [page, setPage] = React.useState('gas');
   const [open, setOpen] = React.useState(true);
   const [network, setNetwork] = React.useState('astar');
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -105,23 +115,7 @@ function Home() {
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
+          <Toolbar>
             <Typography
               component="h1"
               variant="h6"
@@ -144,7 +138,7 @@ function Home() {
             </Tooltip>
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" open={open}>
+        <Drawer variant="permanent" open={open} sx={{ display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' } }}>
           <Toolbar
             sx={{
               display: 'flex',
@@ -156,9 +150,52 @@ function Home() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            <ListItemButton onClick={() => { setPage('gas') }}>
+              <ListItemIcon>
+                <EvStationIcon />
+              </ListItemIcon>
+              <ListItemText primary="Gas" />
+            </ListItemButton>
+            <ListItemButton onClick={() => { setPage('tip') }}>
+              <ListItemIcon>
+                <CurrencyExchangeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Tip" />
+            </ListItemButton>
+            <ListItemButton onClick={() => { setPage('weight') }}>
+              <ListItemIcon>
+                <ScaleIcon />
+              </ListItemIcon>
+              <ListItemText primary="Weights" />
+            </ListItemButton>
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            <ListSubheader component="div" inset>
+              Docs
+            </ListSubheader>
+            <Link href='https://docs.astar.network/docs/integrations/api/gas_api/'>
+              <ListItemButton>
+                  <ListItemIcon>
+                    <AssignmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Gas" />
+              </ListItemButton>
+            </Link>
+            <Link href='https://polkadot.js.org/docs/api/cookbook/tx'>
+              <ListItemButton>
+                <ListItemIcon>
+                  <AssignmentIcon />
+                </ListItemIcon>
+                <ListItemText primary="Tip" />
+              </ListItemButton>
+            </Link>
+            <Link href='https://docs.astar.network/docs/build/wasm/interact/astarjs#weights-v2'>
+              <ListItemButton>
+                <ListItemIcon>
+                  <AssignmentIcon />
+                </ListItemIcon>
+                <ListItemText primary="Weights" />
+              </ListItemButton>
+            </Link>
           </List>
         </Drawer>
         <Box
@@ -175,7 +212,7 @@ function Home() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Gas network={network} />
+            { page === 'weight' ? <Weight network={network} /> :  <Gas network={network} /> }
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
