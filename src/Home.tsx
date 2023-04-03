@@ -12,7 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
-import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -26,6 +25,7 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
 import Gas from './Gas';
 import Weight from './Weight';
+import Tip from './Tip';
 
 function Copyright(props: any) {
   return (
@@ -212,7 +212,7 @@ function Home() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            { page === 'weight' ? <Weight network={network} /> :  <Gas network={network} /> }
+            { page === 'weight' ? <Weight network={network} /> : page === 'tip' ? <Tip network={network} /> : <Gas network={network} /> }
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
