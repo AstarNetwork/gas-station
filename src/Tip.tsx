@@ -6,31 +6,27 @@ import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import TipList from './TipList';
 
-interface GasProps {
+interface TipProps {
   network: string;
 }
 
-const Tip: React.FC<GasProps> = ({ network }) => {
+const Tip: React.FC<TipProps> = ({ network }) => {
   const [slow, setSlow] = useState(0);
   const [average, setAverage] = useState(0);
   const [fast, setFast] = useState(0);
-  const [baseFee, setBaseFee] = useState(0);
-  const [slowPriorityFee, setSlowPriorityFee] = useState(0);
-  const [averagePriorityFee, setAveragePriorityFee] = useState(0);
-  const [fastPriorityFee, setFastPriorityFee] = useState(0);
   const [error, setError] = useState('');
 
   const copyToClipboard = (speed: string) => {
     let text = '';
     switch (speed) {
       case 'slow':
-        text = `{"gasPrice": "${slow}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${slowPriorityFee}" } }`;
+        text = `{"tip": "${slow}" }`;
         break;
       case 'average':
-        text = `{"gasPrice": "${average}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${averagePriorityFee}" } }`;
+        text = `{"tip": "${average}" }`;
         break;
       case 'fast':
-        text = `{"gasPrice": "${fast}", "eip1559": { "baseFee": "${baseFee}", "priorityFee": "${fastPriorityFee}" } }`;
+        text = `{"tip": "${fast}" }`;
         break;
     }
     navigator.clipboard.writeText(text)
@@ -47,18 +43,9 @@ const Tip: React.FC<GasProps> = ({ network }) => {
       const data = response?.data?.data;
 
       if (data) {
-        setSlow(data.slow);
-        setAverage(data.average);
-        setFast(data.fast);
-
-        const eip1559 = data.eip1559;
-
-        if (eip1559) {
-          setBaseFee(eip1559.baseFeePerGas);
-          setSlowPriorityFee(eip1559.priorityFeePerGas.slow);
-          setAveragePriorityFee(eip1559.priorityFeePerGas.average);
-          setFastPriorityFee(eip1559.priorityFeePerGas.fast);
-        }
+        setSlow(data.tip.slow);
+        setAverage(data.tip.average);
+        setFast(data.tip.fast);
       }
     }).catch(error => {
       setError(error);
@@ -87,12 +74,6 @@ const Tip: React.FC<GasProps> = ({ network }) => {
             <Typography variant="h2" align="center">
               {Math.round(fast/Math.pow(10, 9))} Gwei
             </Typography>
-            <Typography color="text.secondary" align="center">
-              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-            </Typography>
-            <Typography color="text.secondary" align="center">
-              Priority Fee: {Math.round(fastPriorityFee/Math.pow(10, 9))} Gwei
-            </Typography>
           </Paper>
         </Tooltip>
       </Grid>
@@ -115,12 +96,6 @@ const Tip: React.FC<GasProps> = ({ network }) => {
             <Typography variant="h2" align="center">
               {Math.round(average/Math.pow(10, 9))} Gwei
             </Typography>
-            <Typography color="text.secondary" align="center">
-              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-            </Typography>
-            <Typography color="text.secondary" align="center">
-              Priority Fee: {Math.round(averagePriorityFee/Math.pow(10, 9))} Gwei
-            </Typography>
           </Paper>
         </Tooltip>
       </Grid>
@@ -141,12 +116,6 @@ const Tip: React.FC<GasProps> = ({ network }) => {
             </Typography>
             <Typography variant="h2" align="center" style={{ cursor: 'pointer' }} onClick={() => { copyToClipboard('slow') }}>
               {Math.round(slow/Math.pow(10, 9))} Gwei
-            </Typography>
-            <Typography color="text.secondary" align="center">
-              Base Fee: {baseFee/Math.pow(10, 9)} Gwei
-            </Typography>
-            <Typography color="text.secondary" align="center">
-              Priority Fee: {Math.round(slowPriorityFee/Math.pow(10, 9))} Gwei
             </Typography>
           </Paper>
         </Tooltip>
