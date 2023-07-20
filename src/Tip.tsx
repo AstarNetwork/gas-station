@@ -14,7 +14,7 @@ const Tip: React.FC<TipProps> = ({ network }) => {
   const [slow, setSlow] = useState(0);
   const [average, setAverage] = useState(0);
   const [fast, setFast] = useState(0);
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
 
   const copyToClipboard = (speed: string) => {
     let text = '';
@@ -72,7 +72,7 @@ const Tip: React.FC<TipProps> = ({ network }) => {
               Fast
             </Typography>
             <Typography variant="h2" align="center">
-              {Math.round(fast/Math.pow(10, 9))} Gwei
+              {Math.round(fast/Math.pow(10, 10))/Math.pow(10, 8)} ASTR
             </Typography>
           </Paper>
         </Tooltip>
@@ -94,7 +94,7 @@ const Tip: React.FC<TipProps> = ({ network }) => {
               Average
             </Typography>
             <Typography variant="h2" align="center">
-              {Math.round(average/Math.pow(10, 9))} Gwei
+              {Math.round(average/Math.pow(10, 10))/Math.pow(10, 8)} ASTR
             </Typography>
           </Paper>
         </Tooltip>
@@ -115,7 +115,7 @@ const Tip: React.FC<TipProps> = ({ network }) => {
               Slow
             </Typography>
             <Typography variant="h2" align="center" style={{ cursor: 'pointer' }} onClick={() => { copyToClipboard('slow') }}>
-              {Math.round(slow/Math.pow(10, 9))} Gwei
+              {Math.round(slow/Math.pow(10, 10))/Math.pow(10, 8)} ASTR
             </Typography>
           </Paper>
         </Tooltip>
