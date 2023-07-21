@@ -71,25 +71,29 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
         const result: Transaction[] = [];
 
         // invalid url will trigger an 404 error
-        const url = `https://${network}.api.subscan.io/api/scan/evm/transactions`
+        const url = `https://${network}.api.subscan.io/api/scan/extrinsics`
 
         for (let i = 0; i < 5; i++) {
           const body = {
+            row: 100,
             block_num: blockNumber - i - 5
           };
-          const response = await axios.post(url, body)
+          const response = await axios.post(url, body, {
+            headers: {
+                'x-api-key': '3a2c713fe8b5469a8a298c226a3f3271'
+          }})
           const data = response?.data?.data;
 
           console.log(data);
 
-          if (data?.list?.length) {
-            data.list.forEach((txn: any) => {
+          if (data?.extrinsics?.length) {
+            data.extrinsics.forEach((txn: any) => {
               const transaction: Transaction = {
                 time: (dayjs as any).unix(txn.block_timestamp).fromNow(),
-                hash: txn.hash,
-                from: txn.from,
-                gasPrice: txn.gas_price,
-                gasUsed: txn.gas_used,
+                hash: txn.extrinsic_hash,
+                from: txn.account_display ? txn.account_display.address : '',
+                gasPrice: txn.fee,
+                gasUsed: txn.fee_used,
               };
               result.push(transaction);
             });
@@ -112,7 +116,7 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
   return (
     <>
       <Typography component="h2" variant="h6" color="primary" gutterBottom>
-        Gas Usage History
+        Tip Usage History
       </Typography>
       <Table size="small">
         <TableHead>
@@ -120,8 +124,8 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
             <TableCell>Date</TableCell>
             <TableCell>Txn Hash</TableCell>
             <TableCell>From</TableCell>
-            <TableCell>Gas Price (Wei)</TableCell>
-            <TableCell>Gas Used (Units)</TableCell>
+            <TableCell>Fee (?)</TableCell>
+            <TableCell>Fee Used (Units)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -140,7 +144,7 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
           )) : <Typography align="center" sx={{p: 2}}>...</Typography>}
         </TableBody>
       </Table>
-      <a style={{padding: 5}} color="primary" target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/evm_transaction`}>
+      <a style={{padding: 5}} color="primary" target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/extrinsics`}>
         {'More >'}
       </a>
     </>

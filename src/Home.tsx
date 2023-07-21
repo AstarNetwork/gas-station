@@ -94,7 +94,7 @@ const mdTheme = createTheme();
 
 function Home() {
   const [page, setPage] = React.useState('gas');
-  const [open, setOpen] = React.useState(true);
+  const [open] = React.useState(true);
   const [network, setNetwork] = React.useState('astar');
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
@@ -103,9 +103,6 @@ function Home() {
   };
   const handleClose = () => {
     setAnchorEl(null);
-  };
-  const toggleDrawer = () => {
-    setOpen(!open);
   };
 
   const logo = '/astar_logo.png';
@@ -150,19 +147,19 @@ function Home() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            <ListItemButton onClick={() => { setPage('gas') }}>
+            <ListItemButton selected={page === 'gas'} onClick={() => { setPage('gas') }} sx={{ backgroundColor: page === 'gas' ? 'rgba(0, 0, 0, 0.08)' : 'inherit' }}>
               <ListItemIcon>
                 <EvStationIcon />
               </ListItemIcon>
               <ListItemText primary="Gas" />
             </ListItemButton>
-            <ListItemButton onClick={() => { setPage('tip') }}>
+            <ListItemButton selected={page === 'tip'} onClick={() => { setPage('tip') }} sx={{ backgroundColor: page === 'tip' ? 'rgba(0, 0, 0, 0.08)' : 'inherit' }}>
               <ListItemIcon>
                 <CurrencyExchangeIcon />
               </ListItemIcon>
               <ListItemText primary="Tip" />
             </ListItemButton>
-            <ListItemButton onClick={() => { setPage('weight') }}>
+            <ListItemButton selected={page === 'weight'} onClick={() => { setPage('weight') }} sx={{ backgroundColor: page === 'weight' ? 'rgba(0, 0, 0, 0.08)' : 'inherit' }}>
               <ListItemIcon>
                 <ScaleIcon />
               </ListItemIcon>
