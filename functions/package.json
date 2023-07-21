@@ -9,9 +9,6 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "engines": {
-    "node": "14"
-  },
   "main": "index.js",
   "dependencies": {
     "ethers": "^5.6.8",
