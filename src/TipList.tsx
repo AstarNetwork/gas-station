@@ -31,6 +31,7 @@ interface Transaction {
   time: string;
   hash: string;
   from: string;
+  tip: string;
   gasPrice: string;
   gasUsed: string;
 }
@@ -63,6 +64,27 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
       return;
     }
 
+    const getTip = async (extrinsic_index: string): Promise<string> => {
+      try {
+        const url = `https://${network}.api.subscan.io/api/scan/extrinsic`
+        const body = {
+          extrinsic_index,
+        };
+        const response = await axios.post(url, body, {
+          headers: {
+              'x-api-key': '3a2c713fe8b5469a8a298c226a3f3271'
+        }})
+        const tip: string = response?.data?.data.tip;
+        console.log('tip', tip);
+        return tip;
+
+      } catch (error: any) {
+        console.log('getTip error', error);
+        setError(error.message);
+        return '';
+      }
+    };
+
     const getData = async () => {
       try {
         setTransactions([]);
@@ -87,11 +109,13 @@ const TipList: React.FC<GasListProps> = ({ network }) => {
           console.log(data);
 
           if (data?.extrinsics?.length) {
-            data.extrinsics.forEach((txn: any) => {
+            // eslint-disable-next-line no-loop-func
+            data.extrinsics.forEach(async (txn: any) => {
               const transaction: Transaction = {
                 time: (dayjs as any).unix(txn.block_timestamp).fromNow(),
                 hash: txn.extrinsic_hash,
                 from: txn.account_display ? txn.account_display.address : '',
+                tip: await getTip(txn.extrinsic_index),
                 gasPrice: txn.fee,
                 gasUsed: txn.fee_used,
               };
