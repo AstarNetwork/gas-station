@@ -133,7 +133,11 @@ const GasList: React.FC<GasListProps> = ({ network }) => {
                   {shortenHash(txn.hash)}
                 </a>
               </TableCell>
-              <TableCell>{txn.from}</TableCell>
+              <TableCell>
+                <a target='_blank' rel='noreferrer' href={`https://${network}.subscan.io/account/${txn.from}`}>
+                  {txn.from}
+                </a>
+              </TableCell>
               <TableCell>{txn.gasPrice}</TableCell>
               <TableCell>{txn.gasUsed}</TableCell>
             </TableRow>
