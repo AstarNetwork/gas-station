@@ -18,6 +18,7 @@ const Gas: React.FC<GasProps> = ({ network }) => {
   const [slowPriorityFee, setSlowPriorityFee] = useState(0);
   const [averagePriorityFee, setAveragePriorityFee] = useState(0);
   const [fastPriorityFee, setFastPriorityFee] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState('');
 
   const copyToClipboard = (speed: string) => {
@@ -42,7 +43,8 @@ const Gas: React.FC<GasProps> = ({ network }) => {
       return;
     }
     // invalid url will trigger an 404 error
-    const url = `https://gas.astar.network/api/gasnow?network=${network}`
+    const http = process.env.DEV ? 'http://localhost:5000' : 'https://gas.astar.network';
+    const url = `${http}/api/gasnow?network=${network}`
     axios.get(url).then((response) => {
       const data = response?.data?.data;
 
