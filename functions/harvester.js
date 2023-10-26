@@ -170,6 +170,8 @@ exports.harvest = function(network, cb) {
     }
 
     const percentiles = percentile([35, 60, 90, 99], gasPrices);
+    // console.log('gasPrices', gasPrices);
+    // console.log('percentiles', percentiles);
 
     const gwei = ethers.BigNumber.from(10).pow(ethers.BigNumber.from(9));
 
@@ -182,10 +184,10 @@ exports.harvest = function(network, cb) {
     const fastest = ethers.BigNumber.from(percentiles[3] || 400000000000);
 
     estimate[network] = {
-      slow: slow.toString(),
-      average: average.toString(),
-      fast: fast.toString(),
-      fastest: fastest.toString(),
+      slow: String(+slow + +baseFeePerGas),
+      average: String(+average + +baseFeePerGas),
+      fast: String(+fast + +baseFeePerGas),
+      fastest: String(+fastest + +baseFeePerGas),
       timestamp: Date.now(),
       eip1559: {
         priorityFeePerGas: {

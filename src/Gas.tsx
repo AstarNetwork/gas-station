@@ -43,7 +43,7 @@ const Gas: React.FC<GasProps> = ({ network }) => {
       return;
     }
     // invalid url will trigger an 404 error
-    const http = process.env.DEV ? 'http://localhost:5000' : 'https://gas.astar.network';
+    const http = process.env.DEV ? 'http://localhost:5001' : 'https://gas.astar.network';
     const url = `${http}/api/gasnow?network=${network}`
     axios.get(url).then((response) => {
       const data = response?.data?.data;

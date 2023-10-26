@@ -4,7 +4,7 @@
   "description": "Gas station for astar",
   "type": "module",
   "scripts": {
-    "serve:firebase": "yarn build && firebase emulators:start --only functions",
+    "serve:firebase": "yarn build && firebase emulators:start",
     "shell:firebase": "yarn build && firebase functions:shell",
     "start": "react-scripts start",
     "build": "react-scripts build",
