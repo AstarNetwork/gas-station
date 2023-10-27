@@ -31,7 +31,7 @@ const shibuyaOracle = new GasPriceOracle({
 });
 
 const rocstarOracle = new GasPriceOracle({
-  defaultRpc: 'https://evm.rocstar.astar.network',
+  defaultRpc: 'https://rocstar.astar.network',
   blocksCount: 200,
   chainId: 692,
 });
@@ -165,13 +165,18 @@ exports.harvest = function(network, cb) {
       block = await web3[network].eth.getBlock(i);
       for (let j = 0; j < block.transactions.length; j++) {
         txn = await web3[network].eth.getTransaction(block.transactions[j]);
+        // console.log('txn.hash:', txn.hash);
+        // console.log('txn.gasPrice:', txn.gasPrice);
+        // console.log('txn.maxFeePerGas', txn.maxFeePerGas);
+        // console.log('txn.maxPriorityFeePerGas', txn.maxPriorityFeePerGas);
+        // console.log('txn.gas', txn.gas);
         gasPrices.push(Number(txn.gasPrice));
       }
     }
 
     const percentiles = percentile([35, 60, 90, 99], gasPrices);
-    console.log('gasPrices', gasPrices);
-    console.log('percentiles', percentiles);
+    // console.log('gasPrices', gasPrices);
+    // console.log('percentiles', percentiles);
 
     const gwei = ethers.BigNumber.from(10).pow(ethers.BigNumber.from(9));
 
