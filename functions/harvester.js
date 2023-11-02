@@ -31,7 +31,7 @@ const shibuyaOracle = new GasPriceOracle({
 });
 
 const rocstarOracle = new GasPriceOracle({
-  defaultRpc: 'https://evm.rocstar.astar.network',
+  defaultRpc: 'https://rocstar.astar.network',
   blocksCount: 200,
   chainId: 692,
 });
@@ -165,21 +165,28 @@ exports.harvest = function(network, cb) {
       block = await web3[network].eth.getBlock(i);
       for (let j = 0; j < block.transactions.length; j++) {
         txn = await web3[network].eth.getTransaction(block.transactions[j]);
+        // console.log('txn.hash:', txn.hash);
+        // console.log('txn.gasPrice:', txn.gasPrice);
+        // console.log('txn.maxFeePerGas', txn.maxFeePerGas);
+        // console.log('txn.maxPriorityFeePerGas', txn.maxPriorityFeePerGas);
+        // console.log('txn.gas', txn.gas);
         gasPrices.push(Number(txn.gasPrice));
       }
     }
 
     const percentiles = percentile([35, 60, 90, 99], gasPrices);
+    // console.log('gasPrices', gasPrices);
+    // console.log('percentiles', percentiles);
 
     const gwei = ethers.BigNumber.from(10).pow(ethers.BigNumber.from(9));
 
     const baseFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.baseFee) || 1).mul(gwei);
     const maxFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.maxFeePerGas) || 20).mul(gwei);
     const maxPriorityFeePerGas = ethers.BigNumber.from(parseInt(result.estimate && result.estimate.maxPriorityFeePerGas) || 30).mul(gwei);
-    const slow = ethers.BigNumber.from(percentiles[0] || 50000000000);
-    const average = ethers.BigNumber.from(percentiles[1] || 100000000000);
-    const fast = ethers.BigNumber.from(percentiles[2] || 200000000000);
-    const fastest = ethers.BigNumber.from(percentiles[3] || 400000000000);
+    const slow = ethers.BigNumber.from(percentiles[0] || result.gasPrices.low * Math.pow(10, 9));
+    const average = ethers.BigNumber.from(percentiles[1] || result.gasPrices.standard * Math.pow(10, 9));
+    const fast = ethers.BigNumber.from(percentiles[2] || result.gasPrices.fast * Math.pow(10, 9));
+    const fastest = ethers.BigNumber.from(percentiles[3] || result.gasPrices.instant * Math.pow(10, 9));
 
     estimate[network] = {
       slow: slow.toString(),

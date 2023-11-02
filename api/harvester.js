@@ -22,7 +22,7 @@ const shibuyaOracle = new GasPriceOracle({
 });
 
 const rocstarOracle = new GasPriceOracle({
-  defaultRpc: 'https://evm.rocstar.astar.network',
+  defaultRpc: 'https://rocstar.astar.network',
   blocksCount: 200,
   chainId: 692,
 });
