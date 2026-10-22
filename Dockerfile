@@ -1,4 +1,4 @@
-FROM docker.io/node:16
+FROM docker.io/node:22
 
 RUN mkdir -p /app
 
