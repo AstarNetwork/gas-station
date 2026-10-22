@@ -97,23 +97,3 @@ exports.shibuyaHarvestFunction = functions
             .catch(console.error);
       });
     });
-
-exports.rocstarHarvestFunction = functions
-    .pubsub
-    .schedule('every 1 minutes')
-    .onRun((context) => {
-      const network = 'rocstar';
-      harvest(network, (err, result) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        admin
-            .firestore()
-            .collection('gasfee')
-            .doc(network)
-            .set(result)
-            .then(console.log)
-            .catch(console.error);
-      });
-    });

@@ -50,7 +50,7 @@ function harvestPromise(network) {
 }
 
 async function main() {
-  const networks = ['astar', 'shibuya', 'shiden', 'rocstar'];
+  const networks = ['astar', 'shibuya', 'shiden'];
 
   for (const network of networks) {
     try {
