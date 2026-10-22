@@ -169,7 +169,7 @@ function Home() {
             <ListSubheader component="div" inset>
               Docs
             </ListSubheader>
-            <Link href='https://docs.astar.network/docs/integrations/api/gas_api/'>
+            <Link href='https://docs.astar.network/docs/build/integrations/api/gas_api'>
               <ListItemButton>
                   <ListItemIcon>
                     <AssignmentIcon />
